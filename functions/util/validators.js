@@ -1,4 +1,12 @@
 // Check if string is empty
+exports.isEmpty = (string) => {
+    if (string.trim() === '') {
+        return true;
+    } else {
+        return false;
+    }
+};
+
 const isEmpty = (string) => {
     if (string.trim() === '') {
         return true;
@@ -8,7 +16,7 @@ const isEmpty = (string) => {
 };
 
 // Check if array is empty
-const arrIsEmpty = (arr) => {
+exports.arrIsEmpty = (arr) => {
     if (arr.length == 0) {
         return true;
     } else {
