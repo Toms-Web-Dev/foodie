@@ -42,12 +42,74 @@ app.get('/recipes', (req, res) => {
         .catch((err) => console.error(err));
 });
 
+// Check if string is empty
+const isEmpty = (string) => {
+    if (string.trim() === '') {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+// Check if array is empty
+const arrIsEmpty = (arr) => {
+    if (arr.length == 0) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+const FBAuth = (req, res, next) => {
+    let idToken;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer ')
+    ) {
+        idToken = req.headers.authorization.split('Bearer ')[1];
+    } else {
+        console.error('No token found');
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    admin
+        .auth()
+        .verifyIdToken(idToken)
+        .then((decodedToken) => {
+            req.user = decodedToken;
+            console.log(decodedToken);
+            return db
+                .collection('users')
+                .where('userId', '==', req.user.uid)
+                .limit(1)
+                .get();
+        })
+        .then((data) => {
+            req.user.handle = data.docs[0].data().handle;
+            return next();
+        })
+        .catch((err) => {
+            console.error('Error while verifying token ', err);
+            return res.status(403).json(err);
+        });
+};
+
 // Create new recipe
-app.post('/recipe', (req, res) => {
+app.post('/recipe', FBAuth, (req, res) => {
+    if (isEmpty(req.body.body)) {
+        return res.status(400).json({ body: 'Description must not be empty' });
+    }
+    if (isEmpty(req.body.title)) {
+        return res.status(400).json({ title: 'Title must not be empty' });
+    }
+    if (arrIsEmpty(req.body.ingredients)) {
+        return res.status(400).json({ ingredients: 'Must add ingredients' });
+    }
+
     const newRecipe = {
         title: req.body.title,
         body: req.body.body,
-        userHandle: req.body.userHandle,
+        userHandle: req.user.handle,
         createdAt: new Date().toISOString(),
         ingredients: req.body.ingredients,
         keywords: req.body.keywords,
@@ -69,15 +131,6 @@ const isEmail = (email) => {
     const re =
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
-};
-
-// Check if string is empty
-const isEmpty = (string) => {
-    if (string.trim() === '') {
-        return true;
-    } else {
-        return false;
-    }
 };
 
 // Signup route
@@ -104,7 +157,6 @@ app.post('/signup', (req, res) => {
 
     if (Object.keys(errors).length > 0) return res.status(400).json(errors);
 
-    // TODO validate data
     let token, userId;
     db.doc(`/users/${newUser.handle}`)
         .get()
