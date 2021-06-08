@@ -6,27 +6,38 @@ admin.initializeApp();
 const express = require('express');
 const app = express();
 
+// Get latest recipes
 app.get('/recipes', (req, res) => {
-    admin.firestore().collection('recipes').get()
+    admin
+        .firestore()
+        .collection('recipes')
+        .orderBy('createdAt', 'desc')
+        .get()
         .then(data => {
             let recipes = []
-            data.forEach(doc => {
-                recipes.push(doc.data())
-            })
+            data.forEach((doc) => {
+                recipes.push({
+                    recipeId: doc.id,
+                    body: doc.data().body,
+                    title: doc.data().title,
+                    userHandle: doc.data().userHandle,
+                    ingredients: doc.data().ingredients,
+                    keywords: doc.data().keywords,
+                    createdAt: doc.data().createdAt,
+                });
+            });
             return res.json(recipes);
         })
         .catch(err => console.error(err))
 })
 
-exports.createRecipe = functions.https.onRequest((req, res) => {
-    if(req.method !== 'POST') {
-        return res.status(400).json({ error: 'Method not allowed'} );
-    }
+// Create new recipe
+app.post('/recipe', (req, res) => {
     const newRecipe = {
         title: req.body.title,
         body: req.body.body,
         userHandle: req.body.userHandle,
-        createdAt: admin.firestore.Timestamp.fromDate(new Date ()),
+        createdAt: new Date().toISOString(),
         ingredients: req.body.ingredients,
         keywords: req.body.keywords
     }
@@ -43,4 +54,4 @@ exports.createRecipe = functions.https.onRequest((req, res) => {
         })
 })
 
-exports.api = functions.https.onRequest(app);
+exports.api = functions.region('europe-west1').https.onRequest(app);
