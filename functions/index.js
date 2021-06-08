@@ -3,15 +3,10 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
-});
+const express = require('express');
+const app = express();
 
-exports.getRecipes = functions.https.onRequest((req, res) => {
+app.get('/recipes', (req, res) => {
     admin.firestore().collection('recipes').get()
         .then(data => {
             let recipes = []
@@ -22,3 +17,30 @@ exports.getRecipes = functions.https.onRequest((req, res) => {
         })
         .catch(err => console.error(err))
 })
+
+exports.createRecipe = functions.https.onRequest((req, res) => {
+    if(req.method !== 'POST') {
+        return res.status(400).json({ error: 'Method not allowed'} );
+    }
+    const newRecipe = {
+        title: req.body.title,
+        body: req.body.body,
+        userHandle: req.body.userHandle,
+        createdAt: admin.firestore.Timestamp.fromDate(new Date ()),
+        ingredients: req.body.ingredients,
+        keywords: req.body.keywords
+    }
+
+    admin.firestore()
+        .collection('recipes')
+        .add(newRecipe)
+        .then(doc => {
+            res.json({ message: `document ${doc.id} created successfully` });
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'something went wrong' });
+            console.log(err);
+        })
+})
+
+exports.api = functions.https.onRequest(app);
