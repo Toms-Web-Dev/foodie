@@ -8,6 +8,9 @@ const {
     postOneRecipe,
     getRecipe,
     commentOnRecipe,
+    likeRecipe,
+    unlikeRecipe,
+    deleteRecipe,
 } = require('./handlers/recipes');
 const {
     signup,
@@ -21,10 +24,10 @@ const {
 app.get('/recipes', getAllRecipes);
 app.post('/recipe', FBAuth, postOneRecipe);
 app.get('/recipe/:recipeId', getRecipe);
-// TODO delete recipe
-// TODO like recipe
-// TODO unlike recipe
+app.get('/recipe/:recipeId/like', FBAuth, likeRecipe);
+app.get('/recipe/:recipeId/unlike', FBAuth, unlikeRecipe);
 app.post('/recipe/:recipeId/comment', FBAuth, commentOnRecipe);
+app.delete('/recipe/:recipeId', FBAuth, deleteRecipe);
 
 // Users routes
 app.post('/signup', signup);
