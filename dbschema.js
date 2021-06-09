@@ -24,6 +24,14 @@ let db = {
             commentCount: 2,
         },
     ],
+    comments: [
+        {
+            userHandle: 'user',
+            recipeId: '6oT01QXvWSX1yhxS9ZfX',
+            body: 'Very tasty!',
+            createdAt: '2021-06-08T17:18:12.147Z',
+        },
+    ],
 };
 const userDetails = {
     // Redux data
