@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 const app = require('express')();
 
 const FBAuth = require('./util/fbAuth');
+const { db } = require('./util/admin');
 
 const {
     getAllRecipes,
@@ -18,6 +19,7 @@ const {
     uploadImage,
     addUserDetails,
     getAuthenticatedUser,
+    getUserDetails,
 } = require('./handlers/users');
 
 // Recipe routes
@@ -35,5 +37,35 @@ app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage);
 app.post('/user', FBAuth, addUserDetails);
 app.get('/user', FBAuth, getAuthenticatedUser);
+app.get('/user/:handle', getUserDetails);
 
 exports.api = functions.region('europe-west1').https.onRequest(app);
+
+// Delete data related to the recipe
+exports.onRecipeDelete = functions
+    .region('europe-west1')
+    .firestore.document('/recipes/{recipeId}')
+    .onDelete((snapshot, context) => {
+        const recipeId = context.params.recipeId;
+        const batch = db.batch();
+        return db
+            .collection('comments')
+            .where('recipeId', '==', recipeId)
+            .get()
+            .then((data) => {
+                data.forEach((doc) => {
+                    batch.delete(db.doc(`/comments/${doc.id}`));
+                });
+                return db
+                    .collection('likes')
+                    .where('recipeId', '==', recipeId)
+                    .get();
+            })
+            .then((data) => {
+                data.forEach((doc) => {
+                    batch.delete(db.doc(`/likes/${doc.id}`));
+                });
+                return batch.commit();
+            })
+            .catch((err) => console.error(err));
+    });

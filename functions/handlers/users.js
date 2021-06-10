@@ -69,7 +69,9 @@ exports.signup = (req, res) => {
                     .status(400)
                     .json({ email: 'Email is already in use' });
             } else {
-                return res.status(500).json({ error: err.code });
+                return res.status(500).json({
+                    general: 'Something went wrong, please try again',
+                });
             }
         });
 };
@@ -96,13 +98,9 @@ exports.login = (req, res) => {
         })
         .catch((err) => {
             console.error(err);
-            if (err.code === 'auth/wrong-password') {
-                return res
-                    .status(403)
-                    .json({ general: 'Wrong password, try again' });
-            } else {
-                return res.status(500).json({ error: err.code });
-            }
+            return res
+                .status(403)
+                .json({ general: 'Wrong password, try again' });
         });
 };
 
@@ -114,6 +112,47 @@ exports.addUserDetails = (req, res) => {
         .update(userDetails)
         .then(() => {
             return res.json({ message: 'Details added successfully' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
+
+// Get any user's details and recipes
+exports.getUserDetails = (req, res) => {
+    let userData = {};
+    db.doc(`/users/${req.params.handle}`)
+        .get()
+        .then((doc) => {
+            if (doc.exists) {
+                userData.user = doc.data();
+                return db
+                    .collection('recipes')
+                    .where('userHandle', '==', req.params.handle)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+            } else {
+                return res.status(404).json({ error: 'User not found' });
+            }
+        })
+        .then((data) => {
+            userData.recipes = [];
+            data.forEach((doc) => {
+                userData.recipes.push({
+                    body: doc.data().body,
+                    commentCount: doc.data().commentCount,
+                    createdAt: doc.data().createdAt,
+                    ingredients: doc.data().ingredients,
+                    keywords: doc.data().keywords,
+                    likeCount: doc.data().likeCount,
+                    title: doc.data().title,
+                    userHandle: doc.data().userHandle,
+                    userImage: doc.data().userImage,
+                    recipeId: doc.id,
+                });
+            });
+            return res.json(userData);
         })
         .catch((err) => {
             console.error(err);
