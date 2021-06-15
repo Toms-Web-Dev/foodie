@@ -17,7 +17,6 @@ const {
     signup,
     login,
     uploadImage,
-    addUserDetails,
     getAuthenticatedUser,
     getUserDetails,
 } = require('./handlers/users');
@@ -35,7 +34,6 @@ app.delete('/recipe/:recipeId', FBAuth, deleteRecipe);
 app.post('/signup', signup);
 app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage);
-app.post('/user', FBAuth, addUserDetails);
 app.get('/user', FBAuth, getAuthenticatedUser);
 app.get('/user/:handle', getUserDetails);
 
