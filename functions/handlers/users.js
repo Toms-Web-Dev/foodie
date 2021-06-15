@@ -5,11 +5,7 @@ const config = require('../util/config');
 const firebase = require('firebase');
 firebase.initializeApp(config);
 
-const {
-    validateSignupData,
-    validateLoginData,
-    reduceUserDetails,
-} = require('../util/validators');
+const { validateSignupData, validateLoginData } = require('../util/validators');
 const { user } = require('firebase-functions/lib/providers/auth');
 
 // Sign up user
@@ -101,21 +97,6 @@ exports.login = (req, res) => {
             return res
                 .status(403)
                 .json({ general: 'Wrong password, try again' });
-        });
-};
-
-// Add user details
-exports.addUserDetails = (req, res) => {
-    let userDetails = reduceUserDetails(req.body);
-
-    db.doc(`/users/${req.user.handle}`)
-        .update(userDetails)
-        .then(() => {
-            return res.json({ message: 'Details added successfully' });
-        })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
         });
 };
 
