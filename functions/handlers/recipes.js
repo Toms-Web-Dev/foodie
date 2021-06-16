@@ -48,6 +48,8 @@ exports.postOneRecipe = (req, res) => {
         likeCount: 0,
         commentCount: 0,
         createdAt: new Date().toISOString(),
+        imageUrl:
+            'https://firebasestorage.googleapis.com/v0/b/foodie-1bf29.appspot.com/o/no-recipe-img.png?alt=media',
     };
 
     db.collection('recipes')

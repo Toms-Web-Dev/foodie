@@ -7,9 +7,6 @@ let db = {
             createdAt: '2021-06-08T22:04:24.392Z',
             imageUrl:
                 'https://firebasestorage.googleapis.com/v0/b/foodie-1bf29.appspot.com/o/376500959542.jpg?alt=media',
-            bio: 'This is a bio',
-            website: 'https://tomsweb.dev',
-            location: 'Latvia',
         },
     ],
     recipes: [
@@ -34,7 +31,6 @@ let db = {
     ],
 };
 const userDetails = {
-    // Redux data
     credentials: {
         userId: 'tjox6rkK2FXzVuR8xFLlhq4BGOv1',
         email: 'user@email.com',
@@ -42,9 +38,6 @@ const userDetails = {
         createdAt: '2021-06-08T22:04:24.392Z',
         imageUrl:
             'https://firebasestorage.googleapis.com/v0/b/foodie-1bf29.appspot.com/o/376500959542.jpg?alt=media',
-        bio: 'This is a bio',
-        website: 'https://tomsweb.dev',
-        location: 'Latvia',
     },
     likes: [
         {

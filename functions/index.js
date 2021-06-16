@@ -19,11 +19,13 @@ const {
     uploadImage,
     getAuthenticatedUser,
     getUserDetails,
+    uploadRecipeImage,
 } = require('./handlers/users');
 
 // Recipe routes
 app.get('/recipes', getAllRecipes);
 app.post('/recipe', FBAuth, postOneRecipe);
+app.post('/recipe/:recipeId/image', FBAuth, uploadRecipeImage);
 app.get('/recipe/:recipeId', getRecipe);
 app.get('/recipe/:recipeId/like', FBAuth, likeRecipe);
 app.get('/recipe/:recipeId/unlike', FBAuth, unlikeRecipe);
