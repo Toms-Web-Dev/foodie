@@ -20,6 +20,7 @@ exports.getAllRecipes = (req, res) => {
                     commentCount: doc.data().commentCount,
                     likeCount: doc.data().likeCount,
                     userImage: doc.data().userImage,
+                    imageUrl: doc.data().imageUrl,
                 });
             });
             return res.json(recipes);

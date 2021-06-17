@@ -127,6 +127,7 @@ exports.getUserDetails = (req, res) => {
                     ingredients: doc.data().ingredients,
                     keywords: doc.data().keywords,
                     likeCount: doc.data().likeCount,
+                    imageUrl: doc.data().imageUrl,
                     title: doc.data().title,
                     userHandle: doc.data().userHandle,
                     userImage: doc.data().userImage,
